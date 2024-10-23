@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de Atendimento</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        #toast {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <strong>Nº do protocolo:</strong>
+        <input type="text" id="protocolNumber" placeholder="Digite o nº do protocolo"><br>
+
+        <strong>Nome do Cliente:</strong>
+        <input type="text" id="clientName" placeholder="Digite o nome do cliente"><br>
+
+        <strong>Cód. do Cliente:</strong>
+        <input type="text" id="clientCode" placeholder="Digite o código do cliente"><br>
+
+        <strong>Cód. NVF:</strong>
+        <input type="text" id="nvfCode" placeholder="Digite o código NVF"><br>
+
+        <strong>Telefone para contato com WhatsApp:</strong>
+        <input type="text" id="whatsappPhone" placeholder="Digite o telefone"><br>
+
+        <strong>Procedimento Realizado:</strong><br>
+        <textarea id="procedureDetails" readonly>Cliente relata falta de conexão, testes realizados sem normalização, aparelho com LOS vermelha</textarea><br>
+
+        <strong>Status do cliente:</strong><br>
+        <input type="radio" id="statusConectado" name="clientStatus" value="Conectado">
+        <label for="statusConectado">Conectado</label><br>
+        <input type="radio" id="statusDesconectado" name="clientStatus" value="Desconectado" checked>
+        <label for="statusDesconectado">Desconectado</label><br>
+
+        <strong>Endereço completo:</strong>
+        <input type="text" id="address" placeholder="Digite o endereço completo"><br>
+
+        <strong>Ponto de referência:</strong>
+        <input type="text" id="referencePoint" placeholder="Digite o ponto de referência"><br>
+
+        <button onclick="copyToClipboard('protocolNumber', 'clientName', 'clientCode', 'nvfCode', 'whatsappPhone', 'procedureDetails', 'clientStatus', 'address', 'referencePoint')">Copiar</button>
+        <button onclick="clearFields('protocolNumber', 'clientName', 'clientCode', 'nvfCode', 'whatsappPhone', 'procedureDetails', 'address', 'referencePoint')">Limpar</button>
+    </div>
+
+    <div id="toast">Texto copiado com sucesso!</div>
+
+    <script>
+        function copyToClipboard(protocolId, clientId, clientCodeId, nvfCodeId, whatsappPhoneId, procedureDetailsId, statusName, addressId, referencePointId) {
+            const protocolNumber = document.getElementById(protocolId).value;
+            const clientName = document.getElementById(clientId).value;
+            const clientCode = document.getElementById(clientCodeId).value;
+            const nvfCode = document.getElementById(nvfCodeId).value;
+            const whatsappPhone = document.getElementById(whatsappPhoneId).value;
+            const procedureDetails = document.getElementById(procedureDetailsId).value;
+            const clientStatus = document.querySelector(`input[name="${statusName}"]:checked`).value; 
+            const address = document.getElementById(addressId).value;
+            const referencePoint = document.getElementById(referencePointId).value;
+
+            const textToCopy = `Nº do protocolo: ${protocolNumber}\nNome do cliente: ${clientName}\nCód. do Cliente: ${clientCode}\nCód. NVF: ${nvfCode}\nTelefone WhatsApp: ${whatsappPhone}\nProcedimento Realizado: ${procedureDetails}\nStatus do Cliente: ${clientStatus}\nEndereço Completo: ${address}\nPonto de Referência: ${referencePoint}`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast();
+            }).catch(err => {
+                console.error('Erro ao copiar: ', err);
+            });
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            toast.style.opacity = '1';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 500);
+            }, 2000);
+        }
+
+        function clearFields(protocolId, clientId, clientCodeId, nvfCodeId, whatsappPhoneId, procedureDetailsId, addressId, referencePointId) {
+            document.getElementById(protocolId).value = '';
+            document.getElementById(clientId).value = '';
+            document.getElementById(clientCodeId).value = '';
+            document.getElementById(nvfCodeId).value = '';
+            document.getElementById(whatsappPhoneId).value = '';
+            document.getElementById(procedureDetailsId).value = '';
+            document.getElementById(addressId).value = '';
+            document.getElementById(referencePointId).value = '';
+        }
+    </script>
+</body>
+</html>
