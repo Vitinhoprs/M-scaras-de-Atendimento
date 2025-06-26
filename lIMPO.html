@@ -1,132 +1,313 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário de Atendimento</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            padding: 20px;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0 15px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            padding: 10px 15px;
-            margin-right: 10px;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #555;
-        }
-        #toast {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s;
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            border-radius: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulário SAC & Suporte</title>
+  <script src="https://unpkg.com/imask"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; color: #333; }
+    label { display: block; margin: 0.5rem 0 0.2rem; }
+    input, select, textarea, button { font-size: 1rem; padding: 0.5rem; width: 100%; box-sizing: border-box; }
+    textarea { resize: vertical; }
+    .field { margin-bottom: 1rem; }
+    .controls { margin-bottom: 1.5rem; }
+    button { width: auto; display: inline-block; margin-right: 0.5rem; background: #333; color: #fff; border: none; border-radius: 4px; cursor: pointer; transition: background 0.3s; }
+    button:hover { background: #555; }
+    #toast { position: fixed; top: 20px; right: 20px; background: #333; color: #fff; padding: 10px; border-radius: 5px; opacity: 0; display: none; transition: opacity 0.5s; }
+  </style>
 </head>
 <body>
-    <div>
-        <strong>Nº do protocolo:</strong>
-        <input type="text" id="protocolNumber" placeholder="Digite o nº do protocolo"><br>
 
-        <strong>Nome do Cliente:</strong>
-        <input type="text" id="clientName" placeholder="Digite o nome do cliente"><br>
+  <h1>Formulário de SAC & Suporte</h1>
 
-        <strong>Cód. do Cliente:</strong>
-        <input type="text" id="clientCode" placeholder="Digite o código do cliente"><br>
+  <div class="controls">
+    <label for="categoria">Categoria</label>
+    <select id="categoria">
+      <option value="">— selecione —</option>
+    </select>
+  </div>
 
-        <strong>Cód. NVF:</strong>
-        <input type="text" id="nvfCode" placeholder="Digite o código NVF"><br>
+  <div class="controls">
+    <label for="template">Template</label>
+    <select id="template" disabled>
+      <option value="">— selecione —</option>
+    </select>
+  </div>
 
-        <strong>Telefone para contato com WhatsApp:</strong>
-        <input type="text" id="whatsappPhone" placeholder="Digite o telefone"><br>
+  <form id="form-campos"></form>
 
-        <strong>Procedimento Realizado:</strong><br>
-        <textarea id="procedureDetails" readonly>Cliente relata falta de conexão, testes realizados sem normalização, aparelho com LOS vermelha</textarea><br>
+  <button id="btnCopy" disabled>Copiar para área de transferência</button>
+  <button id="btnClear" disabled>Limpar</button>
 
-        <strong>Status do cliente:</strong><br>
-        <input type="radio" id="statusConectado" name="clientStatus" value="Conectado">
-        <label for="statusConectado">Conectado</label><br>
-        <input type="radio" id="statusDesconectado" name="clientStatus" value="Desconectado" checked>
-        <label for="statusDesconectado">Desconectado</label><br>
+  <div id="toast">Copiado com sucesso!</div>
 
-        <strong>Endereço completo:</strong>
-        <input type="text" id="address" placeholder="Digite o endereço completo"><br>
+  <script>
+    // Configuração agrupada por categoria
+    const config = {
+      "SAC": {
+        "1. Segunda via do boleto — Boleto encaminhado": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente entrou em contato solicitando boleto com o vencimento do dia XX, a qual foi enviada por e-mail, cliente confirmou o recebimento." },
+          { id: "additional", label: "Além do boleto encaminhado, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "1. Segunda via do boleto — Boleto desatualizado": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente entrou em contato informando que não está conseguindo pagar o boleto. Após verificação no sistema, constatou-se que o boleto está vencido. Atualizado para o dia: ___." },
+          { id: "additional", label: "Além do boleto atualizado, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "Erro no envio": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente entrou em contato solicitando o boleto. Sistema com erro impede envio; orientado a gerar pelo site/app." },
+          { id: "additional", label: "Além da orientação, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "2. Baixa no pagamento — Dentro do prazo": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente informou que pagou o boleto. Baixa pode levar até 48h úteis." },
+          { id: "additional", label: "Além da orientação, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "2. Baixa no pagamento — Necessário comprovante": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente informou que pagou, mas baixa não registrada após 48h úteis. Orientado a enviar comprovante em PDF." },
+          { id: "additional", label: "Além da orientação, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "3. Mudança de plano — Disponível": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Solicitado alteração de plano. Novo plano: ___. Fidelização de 12 meses; multa em caso de cancelamento." },
+          { id: "additional", label: "Além da mudança de plano, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "3. Mudança de plano — Não disponível": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Solicitado alteração, mas existem boletos em aberto. Orientado a regularizar pendências financeiras." },
+          { id: "additional", label: "Além da orientação, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "4. Mudança de endereço": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "cpf", label: "CPF", mask: "000.000.000-00" },
+          { id: "dateOfBirth", label: "Data de nascimento", mask: "00/00/0000" },
+          { id: "contactPhone", label: "Telefone de contato", mask: "(00) 00000-0000" },
+          { id: "email", label: "E-mail" },
+          { id: "motherName", label: "Nome da mãe" },
+          { id: "plan", label: "Plano" },
+          { id: "oldAddress", label: "Endereço antigo" },
+          { id: "newAddress", label: "Endereço novo" },
+          { id: "referencePoint", label: "Ponto de referência" },
+          { id: "additional", label: "Além da mudança de endereço, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "5. Mudança de ponto": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "contactPhone", label: "Telefone de Contato", mask: "(00) 00000-0000" },
+          { id: "cpf", label: "CPF", mask: "000.000.000-00" },
+          { id: "plan", label: "Plano" },
+          { id: "planValue", label: "Valor do plano (R$)", mask: "#.##0,00", lazy: false },
+          { id: "feeValue", label: "Valor da taxa (R$)", mask: "#.##0,00", lazy: false },
+          { id: "oldAddress", label: "Endereço antigo" },
+          { id: "newAddress", label: "Endereço novo" },
+          { id: "referencePoint", label: "Ponto de referência" },
+          { id: "additional", label: "Além da mudança de ponto, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "6. Reativação — Necessário aguardar": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente entra em contato para negociar débitos e reativar plano. Deve pagar primeira parcela. Reativação após confirmação." },
+          { id: "additional", label: "Além da reativação, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "6. Reativação — Feita": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente retorna após parcelamento. PPPoE habilitado e conexão normalizada." },
+          { id: "additional", label: "Além da reativação, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "7. Ajuste anual de valores": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente pergunta motivo de ajuste anual de valores pela ANATEL após 12 meses de contrato." },
+          { id: "additional", label: "Além do reajuste, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "8. Plano suspenso / Velocidade reduzida": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente informa estar sem conexão; boleto em aberto; plano suspenso/velocidade reduzida." },
+          { id: "additional", label: "Além das informações, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "9. Negociação": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente deseja negociar faturas em aberto. Negociação realizada e boleto encaminhado." },
+          { id: "additional", label: "Além da negociação, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "9. Renegociação": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente solicitou boleto da parcela, mas parcelamento anterior cancelado por atraso. Nova negociação realizada." },
+          { id: "additional", label: "Além da renegociação, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "10. Habilitação provisória — Disponível": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente solicitou habilitação provisória. Duração de 4 dias corridos. Pode solicitar a cada 30 dias. Conexão normalizada." },
+          { id: "attention", label: "Atenção (prazos)", type: "textarea", default:
+            "• 06 Dias: assessoria de cobrança;\n• 16 Dias: redução de velocidade;\n• 46 Dias: suspensão;\n• 120 Dias: cancelamento." },
+          { id: "additional", label: "Além da habilitação provisória, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "10. Habilitação provisória — Não disponível": [
+          { id: "protocolNumber", label: "Número do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Solicitada habilitação provisória, mas já emitida nos últimos 30 dias. Não disponível." },
+          { id: "additional", label: "Além da não disponibilidade, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "11. Ação freezing — Emissão de segunda via do boleto": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente solicitou envio de fatura. Boleto será enviado a partir do dia (--)." },
+          { id: "additional", label: "Além da orientação, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ],
+        "11. Ação freezing — Negociação": [
+          { id: "protocolNumber", label: "Nº do protocolo" },
+          { id: "clientName", label: "Nome do cliente" },
+          { id: "description", label: "Descrição", type: "textarea", default:
+            "Cliente solicitou negociação de débitos. Negociação será gerada a partir do dia (--)." },
+          { id: "additional", label: "Além da negociação, também ocorreu", type: "textarea" },
+          { id: "example", label: "Exemplo", type: "textarea", default:
+            "Cliente questionou valores lançados na fatura, sendo orientado sobre o detalhamento dos serviços." }
+        ]
+      },
+      "Suporte": {
+        // adicione aqui os templates de Suporte conforme os prints
+      }
+    };
 
-        <strong>Ponto de referência:</strong>
-        <input type="text" id="referencePoint" placeholder="Digite o ponto de referência"><br>
+    // Elementos
+    const selCat = document.getElementById("categoria");
+    const selTpl = document.getElementById("template");
+    const form = document.getElementById("form-campos");
+    let imasks = [];
 
-        <button onclick="copyToClipboard('protocolNumber', 'clientName', 'clientCode', 'nvfCode', 'whatsappPhone', 'procedureDetails', 'clientStatus', 'address', 'referencePoint')">Copiar</button>
-        <button onclick="clearFields('protocolNumber', 'clientName', 'clientCode', 'nvfCode', 'whatsappPhone', 'procedureDetails', 'address', 'referencePoint')">Limpar</button>
-    </div>
+    // Popula categorias
+    Object.keys(config).forEach(cat => {
+      const o = document.createElement("option"); o.value = cat; o.textContent = cat;
+      selCat.append(o);
+    });
 
-    <div id="toast">Texto copiado com sucesso!</div>
+    // Ao selecionar categoria
+    selCat.addEventListener("change", () => {
+      selTpl.innerHTML = '<option value="">— selecione —</option>';
+      selTpl.disabled = !selCat.value;
+      form.innerHTML = "";
+      imasks.forEach(m => m.destroy()); imasks = [];
+      toggleButtons(false);
+      if (selCat.value) {
+        Object.keys(config[selCat.value]).forEach(tpl => {
+          const o = document.createElement("option"); o.value = tpl; o.textContent = tpl;
+          selTpl.append(o);
+        });
+      }
+    });
 
-    <script>
-        function copyToClipboard(protocolId, clientId, clientCodeId, nvfCodeId, whatsappPhoneId, procedureDetailsId, statusName, addressId, referencePointId) {
-            const protocolNumber = document.getElementById(protocolId).value;
-            const clientName = document.getElementById(clientId).value;
-            const clientCode = document.getElementById(clientCodeId).value;
-            const nvfCode = document.getElementById(nvfCodeId).value;
-            const whatsappPhone = document.getElementById(whatsappPhoneId).value;
-            const procedureDetails = document.getElementById(procedureDetailsId).value;
-            const clientStatus = document.querySelector(`input[name="${statusName}"]:checked`).value; 
-            const address = document.getElementById(addressId).value;
-            const referencePoint = document.getElementById(referencePointId).value;
+    // Ao selecionar template
+    selTpl.addEventListener("change", () => renderFields());
 
-            const textToCopy = `Nº do protocolo: ${protocolNumber}\nNome do cliente: ${clientName}\nCód. do Cliente: ${clientCode}\nCód. NVF: ${nvfCode}\nTelefone WhatsApp: ${whatsappPhone}\nProcedimento Realizado: ${procedureDetails}\nStatus do Cliente: ${clientStatus}\nEndereço Completo: ${address}\nPonto de Referência: ${referencePoint}`;
-            
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                showToast();
-            }).catch(err => {
-                console.error('Erro ao copiar: ', err);
-            });
+    function renderFields() {
+      form.innerHTML = "";
+      imasks.forEach(m => m.destroy()); imasks = [];
+      const campos = config[selCat.value][selTpl.value] || [];
+      campos.forEach(c => {
+        const wrap = document.createElement("div"); wrap.classList.add("field");
+        const lb = document.createElement("label"); lb.htmlFor = c.id; lb.textContent = c.label;
+        wrap.append(lb);
+        let inp;
+        if (c.type === "textarea") {
+          inp = document.createElement("textarea"); inp.rows = 3; if (c.default) inp.value = c.default;
+        } else {
+          inp = document.createElement("input"); inp.type = "text"; if (c.default) inp.value = c.default;
         }
+        inp.id = c.id; wrap.append(inp); form.append(wrap);
+        if (c.mask) imasks.push(IMask(inp, { mask: c.mask, lazy: c.lazy !== false }));
+      });
+      toggleButtons(campos.length > 0);
+    }
 
-        function showToast() {
-            const toast = document.getElementById('toast');
-            toast.style.display = 'block';
-            toast.style.opacity = '1';
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => {
-                    toast.style.display = 'none';
-                }, 500);
-            }, 2000);
-        }
+    // Copiar e limpar
+    document.getElementById("btnCopy").addEventListener("click", copyToClipboard);
+    document.getElementById("btnClear").addEventListener("click", () => renderFields());
 
-        function clearFields(protocolId, clientId, clientCodeId, nvfCodeId, whatsappPhoneId, procedureDetailsId, addressId, referencePointId) {
-            document.getElementById(protocolId).value = '';
-            document.getElementById(clientId).value = '';
-            document.getElementById(clientCodeId).value = '';
-            document.getElementById(nvfCodeId).value = '';
-            document.getElementById(whatsappPhoneId).value = '';
-            document.getElementById(procedureDetailsId).value = '';
-            document.getElementById(addressId).value = '';
-            document.getElementById(referencePointId).value = '';
-        }
-    </script>
+    function copyToClipboard() {
+      const campos = config[selCat.value][selTpl.value] || [];
+      const vals = campos.map(c => document.getElementById(c.id).value.trim());
+      navigator.clipboard.writeText(vals.join("\t")).then(showToast);
+    }
+
+    function toggleButtons(enable) {
+      document.getElementById("btnCopy").disabled = !enable;
+      document.getElementById("btnClear").disabled = !enable;
+    }
+
+    function showToast() {
+      const t = document.getElementById("toast"); t.style.display = "block"; t.style.opacity = "1";
+      setTimeout(() => { t.style.opacity = "0"; setTimeout(() => t.style.display = "none", 500); }, 1500);
+    }
+  </script>
+
 </body>
 </html>
