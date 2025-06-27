@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Formulário & Lojas Físicas</title>
+  <title>Formulário Completo</title>
   <script src="https://unpkg.com/imask"></script>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; padding:20px; color:#333; }
@@ -16,501 +16,543 @@
     button:hover { background:#555; }
     #botao-area { margin-bottom:1rem; }
     #toast { position:fixed; top:20px; right:20px; background:#333; color:#fff; padding:10px; border-radius:5px; opacity:0; display:none; transition:opacity .5s; }
-    /* Lojas Físicas */
-    #lojas-fisicas ul { list-style:none; padding:0; }
-    #lojas-fisicas li { margin:1rem 0; }
-    #lojas-fisicas h3 { margin:0 0 .3rem; font-size:1.1rem; }
-    #lojas-fisicas .pin { margin-right:.5rem; vertical-align:middle; }
+    .static-section ul { list-style:none; padding:0; }
+    .static-section li { margin:1rem 0; }
+    .static-section h3 { margin:0 0 .3rem; font-size:1.1rem; }
+    .static-section .pin, .static-section .icon { margin-right:.5rem; vertical-align:middle; }
   </style>
 </head>
 <body>
-  <h1>Formulário de SAC, Suporte, Retenção, Transferências & Lojas Físicas</h1>
+  <h1>Formulário de SAC, Suporte, Retenção, Transferências, Lojas Físicas e Contatos</h1>
 
   <div class="controls">
     <label for="categoria">Categoria</label>
-    <select id="categoria"><option value="">— selecione —</option></select>
+    <select id="categoria">
+      <option value="">— selecione —</option>
+      <option value="SAC">SAC</option>
+      <option value="Suporte">Suporte</option>
+      <option value="Retenção">Retenção</option>
+      <option value="Transferências">Transferências</option>
+      <option value="Lojas físicas">Lojas físicas</option>
+      <option value="Telefones / Sites / Emails">Telefones / Sites / Emails</option>
+    </select>
   </div>
+
   <div class="controls">
     <label for="template">Template</label>
-    <select id="template" disabled><option value="">— selecione —</option></select>
+    <select id="template" disabled>
+      <option value="">— selecione —</option>
+    </select>
   </div>
+
   <form id="form-campos"></form>
+
   <div id="botao-area">
     <button id="btnCopy" disabled>Copiar</button>
     <button id="btnClear" disabled>Limpar</button>
   </div>
+
   <div id="toast">Copiado!</div>
 
-  <script>
-    const lojasHTML = `
-      <section id="lojas-fisicas">
-        <h2>Lojas físicas (Ligga)</h2>
-        <ul>
-          <li><h3>Campo Largo | PR</h3><p>📍 Av. Ver. Arlindo Chemim, 95<br>CEP: 83601-180</p></li>
-          <li><h3>Bandeirantes | PR</h3><p>📍 Av. Comendador Luiz Meneghel, 558<br>CEP: 86360-000</p></li>
-          <li><h3>Fazenda Rio Grande | PR</h3><p>📍 R. Castanheira, 528<br>CEP: 83820-056</p></li>
-          <li><h3>Foz do Iguaçu | PR</h3><p>📍 R. Mal. Floriano Peixoto, 936<br>CEP: 85851-020</p></li>
-          <li><h3>Jacarezinho | PR</h3><p>📍 R. Paraná, 508<br>CEP: 86400-000</p></li>
-          <li><h3>Matinhos | PR</h3><p>📍 R. da Fonte, 414<br>CEP: 83260-000</p></li>
-          <li><h3>Medianeira | PR</h3><p>📍 R. Paraná, 2384<br>CEP: 85884-000</p></li>
-          <li><h3>Santo Antônio da Platina | PR</h3><p>📍 R. Tiradentes, 603<br>CEP: 86430-000</p></li>
-          <li><h3>Sinop | MT</h3><p>📍 Av. dos Tarumãs, 1366<br>CEP: 78550-043</p></li>
-          <li><h3>Nova Mutum | MT</h3><p>📍 Av. das Araras, 1144<br>CEP: 78450-000</p></li>
-          <li><h3>São José dos Pinhais | PR</h3><p>📍 R. Joaquim Nabuco, 2483<br>CEP: 83005-160</p></li>
-          <li><h3>Paranaguá | PR</h3><p>📍 Travessa Correia de Freitas, 161<br>CEP: 83203-260</p></li>
-          <li><h3>Ponta Grossa | PR</h3><p>📍 R. Cel. Dulcídio, 618<br>CEP: 84010-280</p></li>
-        </ul>
-      </section>`;
+<script>
+  // Seções estáticas
+  const lojasHTML = `
+    <section class="static-section">
+      <h2>Lojas físicas (Ligga)</h2>
+      <ul>
+        <li><h3>Campo Largo | PR</h3><p><span class="pin">📍</span>Av. Ver. Arlindo Chemim, 95<br>CEP: 83601-180</p></li>
+        <li><h3>Bandeirantes | PR</h3><p><span class="pin">📍</span>Av. Comendador Luiz Meneghel, 558<br>CEP: 86360-000</p></li>
+        <li><h3>Fazenda Rio Grande | PR</h3><p><span class="pin">📍</span>R. Castanheira, 528<br>CEP: 83820-056</p></li>
+        <li><h3>Foz do Iguaçu | PR</h3><p><span class="pin">📍</span>R. Mal. Floriano Peixoto, 936<br>CEP: 85851-020</p></li>
+        <li><h3>Jacarezinho | PR</h3><p><span class="pin">📍</span>R. Paraná, 508<br>CEP: 86400-000</p></li>
+        <li><h3>Matinhos | PR</h3><p><span class="pin">📍</span>R. da Fonte, 414<br>CEP: 83260-000</p></li>
+        <li><h3>Medianeira | PR</h3><p><span class="pin">📍</span>R. Paraná, 2384<br>CEP: 85884-000</p></li>
+        <li><h3>Santo Antônio da Platina | PR</h3><p><span class="pin">📍</span>R. Tiradentes, 603<br>CEP: 86430-000</p></li>
+        <li><h3>Sinop | MT</h3><p><span class="pin">📍</span>Avenida dos Tarumãs, 1366<br>CEP: 78550-043</p></li>
+        <li><h3>Nova Mutum | MT</h3><p><span class="pin">📍</span>Av. das Araras, 1144<br>CEP: 78450-000</p></li>
+        <li><h3>São José dos Pinhais | PR</h3><p><span class="pin">📍</span>R. Joaquim Nabuco, 2483<br>CEP: 83005-160</p></li>
+        <li><h3>Paranaguá | PR</h3><p><span class="pin">📍</span>Travessa Correia de Freitas, 161<br>CEP: 83203-260</p></li>
+        <li><h3>Ponta Grossa | PR</h3><p><span class="pin">📍</span>R. Cel. Dulcídio, 618<br>CEP: 84010-280</p></li>
+      </ul>
+    </section>`;
 
-    const config = {
-      "SAC": {
-        "1. Segunda via do boleto — Boleto encaminhado": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Cliente solicitou boleto com vencimento dia XX, enviado por e-mail."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente questionou valores; orientado sobre detalhamento."}
-        ],
-        "1. Segunda via do boleto — Boleto desatualizado": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Cliente não consegue pagar boleto vencido; atualizado novo vencimento: ___."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "Erro no envio": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Sistema indisponível; orientado gerar boleto pelo site/app."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "2. Baixa no pagamento — Dentro do prazo": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Baixa de pagamento pode levar até 48h úteis."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "2. Baixa no pagamento — Necessário comprovante": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Baixa não registrada após 48h; solicitado comprovante em PDF."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "3. Mudança de plano — Disponível": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Alteração de plano realizada para ___ (fidelização 12 meses)."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "3. Mudança de plano — Não disponível": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Alteração não disponível por boletos em aberto; orientado regularizar pendências."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "4. Mudança de endereço": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"cpf",           label:"CPF", mask:"000.000.000-00"},
-          {id:"dateOfBirth",   label:"Data de nascimento", mask:"00/00/0000"},
-          {id:"contactPhone",  label:"Telefone de contato", mask:"(00) 00000-0000"},
-          {id:"email",         label:"E-mail"},
-          {id:"motherName",    label:"Nome da mãe"},
-          {id:"plan",          label:"Plano"},
-          {id:"oldAddress",    label:"Endereço antigo"},
-          {id:"newAddress",    label:"Endereço novo"},
-          {id:"referencePoint",label:"Ponto de referência"},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "5. Mudança de ponto": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"contactPhone",  label:"Telefone de contato",mask:"(00) 00000-0000"},
-          {id:"cpf",           label:"CPF",mask:"000.000.000-00"},
-          {id:"plan",          label:"Plano"},
-          {id:"planValue",     label:"Valor do plano (R$)",mask:"#.##0,00",lazy:false},
-          {id:"feeValue",      label:"Valor da taxa (R$)",mask:"#.##0,00",lazy:false},
-          {id:"oldAddress",    label:"Endereço antigo"},
-          {id:"newAddress",    label:"Endereço novo"},
-          {id:"referencePoint",label:"Ponto de referência"},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "6. Reativação — Necessário aguardar": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Cliente negocia débitos; baixa em até 48h."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "6. Reativação — Feita": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"PPPoE habilitado; conexão normalizada."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "7. Ajuste anual de valores": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Reajuste anual ANATEL após 12 meses."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "8. Plano suspenso / Velocidade reduzida": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Suspensão/redução por boleto em aberto."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "9. Negociação": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Negociação realizada; boleto enviado."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "9. Renegociação": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Renegociação realizada."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "10. Habilitação provisória — Disponível": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Habilitação provisória 4 dias corridos."},
-          {id:"attention",     type:"textarea",label:"Atenção (prazos)",default:"• 06 dias: cobrança;\n• 16 dias: redução;\n• 46 dias: suspensão;\n• 120 dias: cancelamento."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "10. Habilitação provisória — Não disponível": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Não disponível no período recente."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "11. Ação freezing — Emissão de 2ª via boleto": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Boleto enviado a partir de (--)."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "11. Ação freezing — Negociação": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Negociação agendada (--)."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ]
-      },
-      "Suporte": {
-        "1. Massiva na região": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Falta de conexão em massa; manutenção confirmada."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "2. Vinculação sem sucesso/LOS Vermelha": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"clientCode",    label:"Cód. do Cliente"},
-          {id:"nvfCode",       label:"Cód. NVF"},
-          {id:"whatsappPhone", label:"Telefone WhatsApp",mask:"(00) 00000-0000"},
-          {id:"procedureDetails",type:"textarea",label:"Procedimento Realizado",default:"LOS vermelha; testes sem normalização."},  
-          {id:"clientStatus",  type:"radio",label:"Status do cliente",options:["Conectado","Desconectado"]},
-          {id:"address",       label:"Endereço completo"},
-          {id:"referencePoint",label:"Ponto de referência"},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "3. Vinculação com sucesso": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Conexão normalizada após testes."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "4. Lentidão": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Cliente relata lentidão; vinculação sem sucesso."},
-          {id:"clientStatus",  type:"radio",label:"Status do cliente",options:["Conectado","Desconectado"]},
-          {id:"failureNote",   type:"textarea",label:"Motivo do insucesso",default:"Vinculação não realizada."},
-          {id:"clientCode",    label:"Cód. do Cliente"},
-          {id:"nvfCode",       label:"Cód. NVF"},
-          {id:"whatsappPhone", label:"Telefone WhatsApp",mask:"(00) 00000-0000"},
-          {id:"address",       label:"Endereço completo"},
-          {id:"referencePoint",label:"Ponto de referência"},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "5. Troca de equipamento": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"whatsappPhone", label:"Telefone WhatsApp",mask:"(00) 00000-0000"},
-          {id:"address",       label:"Endereço"},
-          {id:"referencePoint",label:"Ponto de referência"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Solicitada troca de equipamento."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "6. Troca de senha Wi-fi": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"whatsappPhone", label:"Telefone WhatsApp",mask:"(00) 00000-0000"},
-          {id:"clientCode",    label:"Código do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Solicitada troca de senha Wi-fi."},
-          {id:"newPassword",   label:"Nova senha desejada"},
-          {id:"importantInfo", type:"textarea",label:"Importante",default:"Senha mínimo 8 caracteres; sem especiais ou acentos."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "7. Informação visita técnica — Dentro do prazo": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Visita técnica agendada; período 08–18h."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"note",          type:"textarea",label:"Observação",default:"Atendimento 08:00–18:00."},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],
-        "7. Informação visita técnica — Técnico não compareceu": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Técnico não compareceu; reagendado para __."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"note",          type:"textarea",label:"Observação",default:"Reassumir chamado e encaminhar ao polo."},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],  
-        "7. Informação visita técnica — NAP/Equipe de rede": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Encaminhado para equipe de rede; prazo 48h."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ],  
-        "8. Máscara de massiva": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Enviar no WhatsApp: Base, Cidade, Bairro, Cliente, Tipo de falha."},
-          {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
-        ]
-      },
-      "Retenção": {
-        "Instruções de Retenção": [
-          {id:"importantInfo",type:"textarea",label:"Importante",default:"1. Para planos corporativos, não cancele; encaminhar para pos-vendas@liggavc.com.br\n2. Solicitar nome da mãe, nº do contrato e data de nascimento.\n3. Confirmar dado adicional (2 opções). Se incorreto, orientar reenvio."}
-        ],
-        "1. Visita Técnica não realizada — Retido": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"ngProtocol",     label:"Protocolo do NG"},
-          {id:"clientCode",     label:"Código do cliente"},
-          {id:"cpfCnpj",        label:"CPF/CNPJ"},
-          {id:"attendant",      label:"Atendente"},
-          {id:"requesterName",  label:"Nome do solicitante"},
-          {id:"originPhone",    label:"Telefone origem"},
-          {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente solicita cancelamento devido à ausência do técnico."},
-          {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Oferecida nova visita técnica, reagendada para ___. Cliente retido."},
-          {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre multa contratual em caso de cancelamento."}
-        ],
-        "1. Visita Técnica não realizada — Cancelado": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"ngProtocol",     label:"Protocolo do NG"},
-          {id:"clientCode",     label:"Código do cliente"},
-          {id:"cpfCnpj",        label:"CPF/CNPJ"},
-          {id:"attendant",      label:"Atendente"},
-          {id:"requesterName",  label:"Nome do solicitante"},
-          {id:"originPhone",    label:"Telefone origem"},
-          {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente cancelou após ausência do técnico."},
-          {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Cliente não aceitou reagendamento. Contrato cancelado e retirada agendada."},
-          {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre detalhamento dos serviços."}
-        ],
-        "2. Motivos Financeiros — Retido": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"ngProtocol",     label:"Protocolo do NG"},
-          {id:"clientCode",     label:"Código do cliente"},
-          {id:"cpfCnpj",        label:"CPF/CNPJ"},
-          {id:"attendant",      label:"Atendente"},
-          {id:"requesterName",  label:"Nome do solicitante"},
-          {id:"originPhone",    label:"Telefone origem"},
-          {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente alega valor acima de suas condições financeiras."},
-          {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Ofertado desconto de [percentual]%, novo valor R$ [novo valor]. Cliente retido."},
-          {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre multa contratual."}
-        ],
-        "2. Motivos Financeiros — Cancelado": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"ngProtocol",     label:"Protocolo do NG"},
-          {id:"clientCode",     label:"Código do cliente"},
-          {id:"cpfCnpj",        label:"CPF/CNPJ"},
-          {id:"attendant",      label:"Atendente"},
-          {id:"requesterName",  label:"Nome do solicitante"},
-          {id:"originPhone",    label:"Telefone origem"},
-          {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente alega condições financeiras."},
-          {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Ofertado desconto; não aceito. Contrato cancelado."},
-          {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre detalhamento dos serviços."}
-        ],
-        "3. Concorrência — Retido": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"ngProtocol",     label:"Protocolo do NG"},
-          {id:"clientCode",     label:"Código do cliente"},
-          {id:"cpfCnpj",        label:"CPF/CNPJ"},
-          {id:"attendant",      label:"Atendente"},
-          {id:"requesterName",  label:"Nome do solicitante"},
-          {id:"originPhone",    label:"Telefone origem"},
-          {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente alega oferta mais vantajosa da concorrência."},
-          {id:"competitor",     type:"textarea",label:"Concorrência – Empresa e Preço",default:"Empresa X\nPreço: R$ ___"},
-          {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Ofertado desconto, novo valor R$ [novo valor]. Cliente retido."},
-          {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre multa contratual."}
-        ],
-        "3. Concorrência — Cancelado": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"ngProtocol",     label:"Protocolo do NG"},
-          {id:"clientCode",     label:"Código do cliente"},
-          {id:"cpfCnpj",        label:"CPF/CNPJ"},
-          {id:"attendant",      label:"Atendente"},
-          {id:"requesterName",  label:"Nome do solicitante"},
-          {id:"originPhone",    label:"Telefone origem"},
-          {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente alega oferta mais vantajosa da concorrência."},
-          {id:"competitor",     type:"textarea",label:"Concorrência – Empresa e Preço",default:"Empresa X\nPreço: R$ ___"},
-          {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Ofertado desconto; não aceito. Contrato cancelado."},
-          {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
-          {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre detalhamento dos serviços."}
-        ]
-      },
-      "Transferências": {
-        "1. Retenção — Solicitação de cancelamento": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Cliente solicita cancelamento do plano. Motivo: ___. Transferido para setor responsável."}
-        ],
-        "1. Retenção — Inviabilidade de fibra": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Cliente solicita mudança de endereço; sem viabilidade de fibra. Transferido para setor responsável."}
-        ],
-        "2. Supervisão": [
-          {id:"protocolNumber",label:"Nº do protocolo"},
-          {id:"clientName",    label:"Nome do cliente"},
-          {id:"description",   type:"textarea",label:"Descrição",default:"Cliente pede para falar com supervisão. Motivo: ___. Transferido para ramal do supervisor."}
-        ]
-      },
-      "Lojas físicas": {
-        "Lojas físicas (Ligga)": [
-          {id:"staticLojas",type:"static",label:""}
-        ]
-      }
-    };
+  const contatosHTML = `
+    <section class="static-section">
+      <h2>Telefones / Sites / Emails</h2>
+      <ul>
+        <li><h3>Nova</h3><p><span class="icon">📱</span>(41) 3907-5656 <span style="color:red;">(Indisponível)</span><br><span class="icon">📞</span>0800-027-9750</p></li>
+        <li><h3>Nova Comercial</h3><p><span class="icon">📱</span>(41) 4042-6160<br><span class="icon">📞</span>0800-400-1070</p></li>
+        <li><h3>Seguro Residencial (Tokio Marine)</h3><p><span class="icon">📱</span>(11) 9-9578-6546<br><span class="icon">📞</span>0800-30-86546<br><span class="icon">🌐</span>www.tokiomarine.com.br</p></li>
+        <li><h3>Seguro Usebens</h3><p><span class="icon">📱</span>(21) 9-7684-7806<br><span class="icon">📞</span>0800-021-8484<br><span class="icon">🌐</span>www.usebens.com.br<br><span style="color:red;">PARA DÚVIDAS APERTE AQUI</span></p></li>
+        <li><h3>Rastreamento Veicular</h3><p><span class="icon">📱</span>(41) 9-9537-0834<br><span class="icon">📞</span>0800-942-3232</p></li>
+        <li><h3>Monitoramento</h3><p><span class="icon">📱</span>(41) 4042-2446</p></li>
+        <li><h3>Ligga</h3><p><span class="icon">📱</span>(41) 99181-4966<br><span class="icon">📞</span>0800-41-41-810<br><span class="icon">🌐</span>liggavc.com.br</p></li>
+        <li><h3>Ligga Comercial</h3><p><span class="icon">📱</span>(41) 4042-6160<br><span class="icon">📞</span>0800-400-1070</p></li>
+        <li><h3>Ligga Corporativo</h3><p><span class="icon">📞</span>0800-604-3939</p></li>
+        <li><h3>TRC Taborda</h3><p><span class="icon">📞</span>(41) 3022-0406</p></li>
+        <li><h3>Services</h3><p><span class="icon">📞</span>0800-645-2907</p></li>
+        <li><h3>Ouvidoria Ligga</h3><p><span class="icon">📞</span>0800-649-3939<br><span class="icon">✉️</span>ouvidoria@liggavc.com.br</p></li>
+        <li><h3>Consultar CNPJ</h3><p><span class="icon">🌐</span>site Receita Federal</p></li>
+        <li><h3>Comprovante / Duplicidade</h3><p><span class="icon">✉️</span>comprovante@liggavc.com.br</p></li>
+        <li><h3>Envio de Endereço</h3><p><span class="icon">✉️</span>comprovantedeendereco@liggavc.com.br</p></li>
+        <li><h3>Certidões / Procurações / ATAS</h3><p><span class="icon">✉️</span>contato@liggavc.com.br</p></li>
+        <li><h3>Cliente Corporativo</h3><p><span class="icon">✉️</span>pos-vendas@liggavc.com.br</p></li>
+      </ul>
+    </section>`;
 
-    const selCat   = document.getElementById("categoria"),
-          selTpl   = document.getElementById("template"),
-          form     = document.getElementById("form-campos"),
-          btnArea  = document.getElementById("botao-area"),
-          btnCopy  = document.getElementById("btnCopy"),
-          btnClear = document.getElementById("btnClear");
-    let imasks = [];
+  // Config completa
+  const config = {
+    "SAC": {
+      "1. Segunda via do boleto — Boleto encaminhado": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Cliente solicitou boleto com vencimento dia XX, enviado por e-mail."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente questionou valores; orientado sobre detalhamento."}
+      ],
+      "1. Segunda via do boleto — Boleto desatualizado": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Cliente não consegue pagar boleto vencido; atualizado novo vencimento: ___."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "Erro no envio": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Sistema indisponível; orientado gerar boleto pelo site/app."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "2. Baixa no pagamento — Dentro do prazo": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Baixa de pagamento pode levar até 48h úteis."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "2. Baixa no pagamento — Necessário comprovante": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Baixa não registrada após 48h; solicitado comprovante em PDF."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "3. Mudança de plano — Disponível": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Alteração de plano realizada para ___ (fidelização 12 meses)."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "3. Mudança de plano — Não disponível": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Alteração não disponível por boletos em aberto; orientado regularizar pendências."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "4. Mudança de endereço": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"cpf",           label:"CPF",mask:"000.000.000-00"},
+        {id:"dateOfBirth",   label:"Data de nascimento",mask:"00/00/0000"},
+        {id:"contactPhone",  label:"Telefone de contato",mask:"(00) 00000-0000"},
+        {id:"email",         label:"E-mail"},
+        {id:"motherName",    label:"Nome da mãe"},
+        {id:"plan",          label:"Plano"},
+        {id:"oldAddress",    label:"Endereço antigo"},
+        {id:"newAddress",    label:"Endereço novo"},
+        {id:"referencePoint",label:"Ponto de referência"},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "5. Mudança de ponto": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"contactPhone",  label:"Telefone de contato",mask:"(00) 00000-0000"},
+        {id:"cpf",           label:"CPF",mask:"000.000.000-00"},
+        {id:"plan",          label:"Plano"},
+        {id:"planValue",     label:"Valor do plano (R$)",mask:"#.##0,00",lazy:false},
+        {id:"feeValue",      label:"Valor da taxa (R$)",mask:"#.##0,00",lazy:false},
+        {id:"oldAddress",    label:"Endereço antigo"},
+        {id:"newAddress",    label:"Endereço novo"},
+        {id:"referencePoint",label:"Ponto de referência"},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "6. Reativação — Necessário aguardar": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Cliente negocia débitos; baixa em até 48h."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "6. Reativação — Feita": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"PPPoE habilitado; conexão normalizada."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "7. Ajuste anual de valores": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Reajuste anual ANATEL após 12 meses."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "8. Plano suspenso / Velocidade reduzida": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Suspensão/redução por boleto em aberto."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "9. Negociação": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Negociação realizada; boleto enviado."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "9. Renegociação": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Renegociação realizada."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "10. Habilitação provisória — Disponível": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Habilitação provisória 4 dias corridos."},
+        {id:"attention",     type:"textarea",label:"Atenção (prazos)",default:"• 06 dias: cobrança;\n• 16 dias: redução de velocidade;\n• 46 dias: suspensão;\n• 120 dias: cancelamento."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "10. Habilitação provisória — Não disponível": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Não disponível no período recente."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "11. Ação freezing — Emissão de 2ª via boleto": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Boleto enviado a partir de (--)."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "11. Ação freezing — Negociação": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Negociação agendada (--)."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ]
+    },
+    "Suporte": {
+      "1. Massiva na região": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Falta de conexão em massa; manutenção confirmada."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "2. Vinculação sem sucesso/LOS Vermelha": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"clientCode",    label:"Cód. do Cliente"},
+        {id:"nvfCode",       label:"Cód. NVF"},
+        {id:"whatsappPhone", label:"Telefone WhatsApp",mask:"(00) 00000-0000"},
+        {id:"procedureDetails",type:"textarea",label:"Procedimento Realizado",default:"LOS vermelha; testes sem normalização."},
+        {id:"clientStatus",  type:"radio",label:"Status do cliente",options:["Conectado","Desconectado"]},
+        {id:"address",       label:"Endereço completo"},
+        {id:"referencePoint",label:"Ponto de referência"},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "3. Vinculação com sucesso": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Conexão normalizada após testes."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "4. Lentidão": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Cliente relata lentidão; testes sem sucesso."},
+        {id:"clientStatus",  type:"radio",label:"Status do cliente",options:["Conectado","Desconectado"]},
+        {id:"failureNote",   type:"textarea",label:"Motivo do insucesso",default:"Vinculação não realizada."},
+        {id:"clientCode",    label:"Cód. do Cliente"},
+        {id:"nvfCode",       label:"Cód. NVF"},
+        {id:"whatsappPhone", label:"Telefone WhatsApp",mask:"(00) 00000-0000"},
+        {id:"address",       label:"Endereço completo"},
+        {id:"referencePoint",label:"Ponto de referência"},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "5. Troca de equipamento": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"whatsappPhone", label:"Telefone WhatsApp",mask:"(00) 00000-0000"},  
+        {id:"address",       label:"Endereço"},
+        {id:"referencePoint",label:"Ponto de referência"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Solicitada troca de equipamento."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "6. Troca de senha Wi-fi": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"whatsappPhone", label:"Telefone WhatsApp",mask:"(00) 00000-0000"},
+        {id:"clientCode",    label:"Código do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Solicitada troca de senha Wi-fi."},
+        {id:"newPassword",   label:"Nova senha desejada"},
+        {id:"importantInfo", type:"textarea",label:"Importante",default:"Senha mínimo 8 caracteres; sem especiais ou acentos."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "7. Informação visita técnica — Dentro do prazo": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Visita técnica agendada; período 08–18h."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"note",          type:"textarea",label:"Observação",default:"Atendimento 08:00–18:00."},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "7. Informação visita técnica — Técnico não compareceu": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Técnico não compareceu; reagendado para __."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"note",          type:"textarea",label:"Observação",default:"Reassumir chamado e encaminhar ao polo."},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "7. Informação visita técnica — NAP/Equipe de rede": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Encaminhado para equipe de rede; prazo 48h."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ],
+      "8. Máscara de massiva": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Enviar no WhatsApp: Base, Cidade, Bairro, Cliente, Tipo de falha."},
+        {id:"additional",    type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",       type:"textarea",label:"Exemplo",default:"Cliente orientado sobre serviços."}
+      ]
+    },
+    "Retenção": {
+      "Instruções de Retenção": [
+        {id:"importantInfo",type:"textarea",label:"Importante",default:"1. Não cancele corp.; 2. Confirmar dado adicional."}
+      ],
+      "1. Visita Técnica não realizada — Retido": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"ngProtocol",     label:"Protocolo do NG"},
+        {id:"clientCode",     label:"Código do cliente"},
+        {id:"cpfCnpj",        label:"CPF/CNPJ"},
+        {id:"attendant",      label:"Atendente"},
+        {id:"requesterName",  label:"Nome do solicitante"},
+        {id:"originPhone",    label:"Telefone origem"},
+        {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente solicita cancelamento devido à ausência do técnico."},
+        {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Oferecida nova visita técnica, reagendada para ___. Cliente retido."},  
+        {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre multa contratual."}
+      ],
+      "1. Visita Técnica não realizada — Cancelado": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"ngProtocol",     label:"Protocolo do NG"},
+        {id:"clientCode",     label:"Código do cliente"},
+        {id:"cpfCnpj",        label:"CPF/CNPJ"},
+        {id:"attendant",      label:"Atendente"},
+        {id:"requesterName",  label:"Nome do solicitante"},
+        {id:"originPhone",    label:"Telefone origem"},
+        {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente cancelou após ausência do técnico."},
+        {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Cliente não aceitou reagendamento. Contrato cancelado e retirada agendada."},
+        {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre detalhamento dos serviços."}
+      ],
+      "2. Motivos Financeiros — Retido": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"ngProtocol",     label:"Protocolo do NG"},  
+        {id:"clientCode",     label:"Código do cliente"},
+        {id:"cpfCnpj",        label:"CPF/CNPJ"},
+        {id:"attendant",      label:"Atendente"},
+        {id:"requesterName",  label:"Nome do solicitante"},
+        {id:"originPhone",    label:"Telefone origem"},
+        {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente alega valor acima de suas condições financeiras."},
+        {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Ofertado desconto de [percentual]%, novo valor R$ [novo valor]. Cliente retido."},
+        {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre multa contratual."}
+      ],
+      "2. Motivos Financeiros — Cancelado": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"ngProtocol",     label:"Protocolo do NG"},
+        {id:"clientCode",     label:"Código do cliente"},
+        {id:"cpfCnpj",        label:"CPF/CNPJ"},
+        {id:"attendant",      label:"Atendente"},
+        {id:"requesterName",  label:"Nome do solicitante"},
+        {id:"originPhone",    label:"Telefone origem"},
+        {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente alega condições financeiras."},
+        {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Ofertado desconto; não aceito. Contrato cancelado."},
+        {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre detalhamento dos serviços."}
+      ],
+      "3. Concorrência — Retido": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"ngProtocol",     label:"Protocolo do NG"},
+        {id:"clientCode",     label:"Código do cliente"},
+        {id:"cpfCnpj",        label:"CPF/CNPJ"},
+        {id:"attendant",      label:"Atendente"},
+        {id:"requesterName",  label:"Nome do solicitante"},
+        {id:"originPhone",    label:"Telefone origem"},
+        {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente alega oferta mais vantajosa da concorrência."},
+        {id:"competitor",     type:"textarea",label:"Concorrência – Empresa e Preço",default:"Empresa X\nPreço: R$ ___"},
+        {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Ofertado desconto, novo valor R$ [novo valor]. Cliente retido."},
+        {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre multa contratual."}
+      ],
+      "3. Concorrência — Cancelado": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"ngProtocol",     label:"Protocolo do NG"},
+        {id:"clientCode",     label:"Código do cliente"},
+        {id:"cpfCnpj",        label:"CPF/CNPJ"},
+        {id:"attendant",      label:"Atendente"},
+        {id:"requesterName",  label:"Nome do solicitante"},
+        {id:"originPhone",    label:"Telefone origem"},
+        {id:"dissatisfaction",type:"textarea",label:"Insatisfação",default:"Cliente alega oferta mais vantajosa da concorrência."},
+        {id:"competitor",     type:"textarea",label:"Concorrência – Empresa e Preço",default:"Empresa X\nPreço: R$ ___"},
+        {id:"solution",       type:"textarea",label:"Solução/oferta aplicada",default:"Ofertado desconto; não aceito. Contrato cancelado."},
+        {id:"additional",     type:"textarea",label:"Além disso, ocorreu"},
+        {id:"example",        type:"textarea",label:"Exemplo",default:"Orientado sobre detalhamento dos serviços."}
+      ]
+    },
+    "Transferências": {
+      "1. Retenção — Solicitação de cancelamento": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Cliente solicita cancelamento do plano. Motivo: ___. Transferido para setor responsável."}
+      ],
+      "1. Retenção — Inviabilidade de fibra": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Cliente solicita mudança de endereço; sem viabilidade de fibra. Transferido para setor responsável."}
+      ],
+      "2. Supervisão": [
+        {id:"protocolNumber",label:"Nº do protocolo"},
+        {id:"clientName",    label:"Nome do cliente"},
+        {id:"description",   type:"textarea",label:"Descrição",default:"Cliente pede para falar com supervisão. Motivo: ___. Transferido para ramal do supervisor."}
+      ]
+    },
+    "Lojas físicas": {
+      "Lojas físicas (Ligga)": [
+        {id:"staticLojas",type:"static",label:""}
+      ]
+    },
+    "Telefones / Sites / Emails": {
+      "Telefones / Sites / Emails": [
+        {id:"staticContacts",type:"static",label:""}
+      ]
+    }
+  };
 
-    Object.keys(config).forEach(cat=>{
-      const o = document.createElement("option");
-      o.value = cat; o.textContent = cat;
-      selCat.append(o);
-    });
+  // Elementos
+  const selCat   = document.getElementById("categoria"),
+        selTpl   = document.getElementById("template"),
+        form     = document.getElementById("form-campos"),
+        btnArea  = document.getElementById("botao-area"),
+        btnCopy  = document.getElementById("btnCopy"),
+        btnClear = document.getElementById("btnClear");
+  let imasks = [];
 
-    selCat.onchange = ()=>{
-      selTpl.innerHTML = '<option value="">— selecione —</option>';
-      selTpl.disabled = !selCat.value;
-      form.innerHTML = '';
-      imasks.forEach(m=>m.destroy());
-      imasks = [];
+  // Preenche categorias
+  Object.keys(config).forEach(cat=>{
+    const o = document.createElement("option");
+    o.value = cat; o.textContent = cat;
+    selCat.append(o);
+  });
+
+  selCat.onchange = ()=>{
+    selTpl.innerHTML = '<option value="">— selecione —</option>';
+    selTpl.disabled = !selCat.value;
+    form.innerHTML = ''; imasks.forEach(m=>m.destroy()); imasks = [];
+    btnArea.style.display = 'none';
+    if(selCat.value){
+      Object.keys(config[selCat.value]).forEach(tpl=>{
+        const o = document.createElement("option");
+        o.value = tpl; o.textContent = tpl;
+        selTpl.append(o);
+      });
+    }
+  };
+
+  selTpl.onchange = ()=>{
+    form.innerHTML = ''; imasks.forEach(m=>m.destroy()); imasks = [];
+    const campos = config[selCat.value][selTpl.value] || [];
+    if(campos[0] && campos[0].type === 'static'){
+      form.innerHTML = selCat.value === 'Lojas físicas' ? lojasHTML : contatosHTML;
       btnArea.style.display = 'none';
-      if(selCat.value){
-        Object.keys(config[selCat.value]).forEach(tpl=>{
-          const o = document.createElement("option");
-          o.value = tpl; o.textContent = tpl;
-          selTpl.append(o);
+      return;
+    }
+    campos.forEach(c=>{
+      const wrap = document.createElement("div");
+      wrap.className = 'field';
+      const lb = document.createElement("label");
+      lb.htmlFor = c.id; lb.textContent = c.label;
+      wrap.append(lb);
+      let inp;
+      if(c.type === 'textarea'){
+        inp = document.createElement("textarea");
+        inp.rows = 3;
+        if(c.default) inp.value = c.default;
+      } else if(c.type === 'radio'){
+        c.options.forEach(opt=>{
+          const rb = document.createElement("input");
+          rb.type = 'radio'; rb.name = c.id; rb.value = opt; rb.id = c.id+opt;
+          const lbl = document.createElement("label");
+          lbl.htmlFor = rb.id; lbl.textContent = opt;
+          wrap.append(rb, lbl);
         });
+      } else {
+        inp = document.createElement("input");
+        inp.type = 'text';
+        if(c.default) inp.value = c.default;
       }
-    };
-
-    selTpl.onchange = ()=>{
-      form.innerHTML = '';
-      imasks.forEach(m=>m.destroy());
-      imasks = [];
-      const campos = config[selCat.value][selTpl.value] || [];
-      if(campos[0] && campos[0].type === 'static'){
-        form.innerHTML = lojasHTML;
-        btnArea.style.display = 'none';
-        return;
+      if(inp){
+        inp.id = c.id;
+        wrap.append(inp);
+        if(c.mask) imasks.push(IMask(inp,{mask:c.mask,lazy:c.lazy!==false}));
       }
-      campos.forEach(c=>{
-        const wrap = document.createElement("div");
-        wrap.className = 'field';
-        const lb = document.createElement("label");
-        lb.htmlFor = c.id; lb.textContent = c.label;
-        wrap.append(lb);
-        let inp;
-        if(c.type === 'textarea'){
-          inp = document.createElement("textarea");
-          inp.rows = 3;
-          if(c.default) inp.value = c.default;
-        } else if(c.type === 'radio'){
-          c.options.forEach(opt=>{
-            const rb = document.createElement("input");
-            rb.type = 'radio'; rb.name = c.id; rb.value = opt; rb.id = c.id + opt;
-            const lbl = document.createElement("label");
-            lbl.htmlFor = rb.id; lbl.textContent = opt;
-            wrap.append(rb, lbl);
-          });
-        } else {
-          inp = document.createElement("input");
-          inp.type = 'text';
-          if(c.default) inp.value = c.default;
-        }
-        if(inp){
-          inp.id = c.id;
-          wrap.append(inp);
-          if(c.mask) imasks.push(IMask(inp,{mask:c.mask,lazy:c.lazy!==false}));
-        }
-        form.append(wrap);
-      });
-      btnArea.style.display = 'block';
-      btnCopy.disabled = btnClear.disabled = false;
-    };
+      form.append(wrap);
+    });
+    btnArea.style.display = 'block';
+    btnCopy.disabled = btnClear.disabled = false;
+  };
 
-    btnCopy.onclick = ()=>{
-      const vals = (config[selCat.value][selTpl.value]||[]).map(c=>{
-        if(c.type==='radio'){
-          const s = document.querySelector(`input[name="${c.id}"]:checked`);
-          return s? s.value : '';
-        }
-        const e = document.getElementById(c.id);
-        return e? e.value.trim() : '';
-      }).join('\t');
-      navigator.clipboard.writeText(vals).then(()=>{
-        const t = document.getElementById("toast");
-        t.style.display = 'block';
-        t.style.opacity = 1;
-        setTimeout(()=>{
-          t.style.opacity = 0;
-          setTimeout(()=>t.style.display='none',500);
-        },1500);
-      });
-    };
-    btnClear.onclick = ()=> selTpl.onchange();
-  </script>
+  btnCopy.onclick = ()=>{
+    const text = (config[selCat.value][selTpl.value]||[]).map(c=>{
+      if(c.type==='radio'){
+        const s = document.querySelector(`input[name="${c.id}"]:checked`);
+        return s? s.value : '';
+      }
+      const e = document.getElementById(c.id);
+      return e? e.value.trim() : '';
+    }).join('\t');
+    navigator.clipboard.writeText(text).then(()=>{
+      const t = document.getElementById("toast");
+      t.style.display = 'block';
+      t.style.opacity = 1;
+      setTimeout(()=>{
+        t.style.opacity = 0;
+        setTimeout(()=>t.style.display='none',500);
+      },1500);
+    });
+  };
+  btnClear.onclick = ()=> selTpl.onchange();
+</script>
 </body>
 </html>
